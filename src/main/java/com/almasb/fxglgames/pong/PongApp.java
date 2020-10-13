@@ -74,7 +74,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     private Entity player2;
     private Entity ball;
     private BatComponent player1Bat;
-    private BatComponent player2Bat;
+    private BatComponent player2Bat; 
 
     private Server<String> server;
 
