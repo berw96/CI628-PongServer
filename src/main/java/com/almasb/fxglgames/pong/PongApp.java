@@ -36,6 +36,7 @@ import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.net.*;
 import com.almasb.fxgl.physics.CollisionHandler;
+import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.ui.UI;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -51,6 +52,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
+import static com.almasb.fxglgames.pong.NetworkMessages.*;
 import static com.almasb.fxglgames.pong.NetworkMessages.BALL_HIT_BAT1;
 import static com.almasb.fxglgames.pong.NetworkMessages.BALL_HIT_BAT2;
 
@@ -216,7 +218,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.BALL, EntityType.WALL) {
 
-            /*
+
             protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB) {
                 if (boxB.getName().equals("LEFT")) {
                     inc("player2score", +1);
@@ -238,15 +240,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
                 getGameScene().getViewport().shakeTranslational(5);
             }
-
-
-            /**@author
-             * E.R.Walker (E.walker5@uni.brighton.ac.uk)
-             */
-//            @Override
-//            protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB){
-//
-//            }
         });
 
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
