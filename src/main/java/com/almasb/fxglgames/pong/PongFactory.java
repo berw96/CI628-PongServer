@@ -74,8 +74,8 @@ public class PongFactory implements EntityFactory {
         );
 
         emitter.setBlendMode(BlendMode.SRC_OVER);
-        emitter.setSize(5, 10);
-        emitter.setEmissionRate(1);
+        emitter.setSize(2, 5);
+        emitter.setEmissionRate(2);
 
         return entityBuilder(data)
                 .type(EntityType.BALL)
@@ -96,7 +96,7 @@ public class PongFactory implements EntityFactory {
 
         return entityBuilder(data)
                 .type(isPlayer ? EntityType.PLAYER_BAT : EntityType.ENEMY_BAT)
-                .viewWithBBox(new Rectangle(20, 60, Color.LIGHTGRAY))
+                .viewWithBBox(new Rectangle(80, 20, Color.LIGHTGRAY))
                 .with(new CollidableComponent(true))
                 .with(physics)
                 .with(new BatComponent())

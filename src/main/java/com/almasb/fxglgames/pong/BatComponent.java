@@ -53,6 +53,23 @@ public class BatComponent extends Component {
             stop();
     }
 
+    /**@author
+     * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+     */
+    public void left(){
+        if(entity.getX() >= BAT_SPEED / 60)
+            physics.setVelocityX(-BAT_SPEED);
+        else
+            stop();
+    }
+
+    public void right(){
+        if(entity.getRightX() <= FXGL.getAppWidth() - (BAT_SPEED / 60))
+            physics.setVelocityX(BAT_SPEED);
+        else
+            stop();
+    }
+
     public void stop() {
         physics.setLinearVelocity(0, 0);
     }

@@ -36,7 +36,6 @@ import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.net.*;
 import com.almasb.fxgl.physics.CollisionHandler;
-import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.ui.UI;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -52,7 +51,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
-import static com.almasb.fxglgames.pong.NetworkMessages.*;
+import static com.almasb.fxglgames.pong.NetworkMessages.BALL_HIT_BAT1;
+import static com.almasb.fxglgames.pong.NetworkMessages.BALL_HIT_BAT2;
 
 /**
  * A simple clone of Pong.
@@ -74,12 +74,13 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     private Entity player2;
     private Entity ball;
     private BatComponent player1Bat;
-    private BatComponent player2Bat; 
+    private BatComponent player2Bat;
 
     private Server<String> server;
 
     @Override
     protected void initInput() {
+        /*
         getInput().addAction(new UserAction("Up1") {
             @Override
             protected void onAction() {
@@ -127,6 +128,58 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 player2Bat.stop();
             }
         }, KeyCode.K);
+        */
+
+        /**@author
+         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+         */
+        getInput().addAction(new UserAction("Left1"){
+            @Override
+            protected void onAction(){
+                player1Bat.left();
+            }
+
+            @Override
+            protected void onActionEnd(){
+                player1Bat.stop();
+            }
+        }, KeyCode.A);
+
+        getInput().addAction(new UserAction("Right1"){
+            @Override
+            protected void onAction(){
+                player1Bat.right();
+            }
+
+            @Override
+            protected void onActionEnd(){
+                player1Bat.stop();
+            }
+        }, KeyCode.D);
+
+        getInput().addAction(new UserAction("Left2"){
+            @Override
+            protected void onAction(){
+                player2Bat.left();
+            }
+
+            @Override
+            protected void onActionEnd(){
+                player2Bat.stop();
+            }
+        }, KeyCode.J);
+
+        getInput().addAction(new UserAction("Right2"){
+            @Override
+            protected void onAction(){
+                player2Bat.right();
+            }
+
+            @Override
+            protected void onActionEnd(){
+                player2Bat.stop();
+            }
+        }, KeyCode.L);
     }
 
     @Override
@@ -147,7 +200,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         });
 
         getGameWorld().addEntityFactory(new PongFactory());
-        getGameScene().setBackgroundColor(Color.rgb(0, 0, 5));
+        getGameScene().setBackgroundColor(Color.rgb(100, 100, 100));
 
         initScreenBounds();
         initGameObjects();
@@ -162,7 +215,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getPhysicsWorld().setGravity(0, 0);
 
         getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.BALL, EntityType.WALL) {
-            @Override
+
+            /*
             protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB) {
                 if (boxB.getName().equals("LEFT")) {
                     inc("player2score", +1);
@@ -184,6 +238,15 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
                 getGameScene().getViewport().shakeTranslational(5);
             }
+
+
+            /**@author
+             * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+             */
+//            @Override
+//            protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB){
+//
+//            }
         });
 
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
@@ -230,8 +293,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     private void initGameObjects() {
         ball = spawn("ball", getAppWidth() / 2 - 5, getAppHeight() / 2 - 5);
-        player1 = spawn("bat", new SpawnData(getAppWidth() / 4, getAppHeight() / 2 - 30).put("isPlayer", true));
-        player2 = spawn("bat", new SpawnData(3 * getAppWidth() / 4 - 20, getAppHeight() / 2 - 30).put("isPlayer", false));
+        player1 = spawn("bat", new SpawnData(getAppWidth() / 2, getAppHeight() - 30).put("isPlayer", true));
+        player2 = spawn("bat", new SpawnData(getAppWidth() / 2, 30).put("isPlayer", false));
 
         player1Bat = player1.getComponent(BatComponent.class);
         player2Bat = player2.getComponent(BatComponent.class);
