@@ -217,30 +217,29 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getPhysicsWorld().setGravity(0, 0);
 
         getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.BALL, EntityType.WALL) {
-
-
             protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB) {
-                if (boxB.getName().equals("LEFT")) {
+                if (boxB.getName().equals("BOT")) {
+                    getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
-
                     server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
-
+                    server.broadcast(HIT_WALL_DOWN);
+                } else if (boxB.getName().equals("TOP")) {
+                    getGameScene().getViewport().shakeTranslational(5);
+                    inc("player1score", +1);
+                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
+                    server.broadcast(HIT_WALL_UP);
+                } else if (boxB.getName().equals("LEFT")) {
                     server.broadcast(HIT_WALL_LEFT);
                 } else if (boxB.getName().equals("RIGHT")) {
-                    inc("player1score", +1);
-
-                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
-
                     server.broadcast(HIT_WALL_RIGHT);
-                } else if (boxB.getName().equals("TOP")) {
-                    server.broadcast(HIT_WALL_UP);
-                } else if (boxB.getName().equals("BOT")) {
-                    server.broadcast(HIT_WALL_DOWN);
                 }
-
-                getGameScene().getViewport().shakeTranslational(5);
             }
         });
+
+        /**@author
+         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+         */
+
 
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
             @Override
