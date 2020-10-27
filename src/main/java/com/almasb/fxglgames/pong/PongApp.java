@@ -193,12 +193,12 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
          */
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
             @Override
-            protected void onCollisionBegin(Entity a, Entity bat) {
-                if(bat.equals(EntityType.PLAYER_BAT)){
+            protected void onCollisionBegin(Entity ball, Entity bat) {
+                if(bat == player1){
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
                     server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
-                } else {
+                } else if(bat == player2) {
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
                     server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
