@@ -39,20 +39,6 @@ public class BatComponent extends Component {
 
     protected PhysicsComponent physics;
 
-    public void up() {
-        if (entity.getY() >= BAT_SPEED / 60)
-            physics.setVelocityY(-BAT_SPEED);
-        else
-            stop();
-    }
-
-    public void down() {
-        if (entity.getBottomY() <= FXGL.getAppHeight() - (BAT_SPEED / 60))
-            physics.setVelocityY(BAT_SPEED);
-        else
-            stop();
-    }
-
     /**@author
      * E.R.Walker (E.walker5@uni.brighton.ac.uk)
      */

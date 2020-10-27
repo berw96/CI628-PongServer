@@ -54,7 +54,7 @@ public class BallComponent extends Component {
         }
 
         // we don't want the ball to move too fast in Y direction
-        if (abs(physics.getVelocityY()) > 5 * 60 * 2) {
+        if (abs(physics.getVelocityY()) < 5 * 60 * 2) {
             physics.setVelocityY(signum(physics.getVelocityY()) * 5 * 60);
         }
     }

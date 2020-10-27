@@ -82,56 +82,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     @Override
     protected void initInput() {
-        /*
-        getInput().addAction(new UserAction("Up1") {
-            @Override
-            protected void onAction() {
-                player1Bat.up();
-            }
-
-            @Override
-            protected void onActionEnd() {
-                player1Bat.stop();
-            }
-        }, KeyCode.W);
-
-        getInput().addAction(new UserAction("Down1") {
-            @Override
-            protected void onAction() {
-                player1Bat.down();
-            }
-
-            @Override
-            protected void onActionEnd() {
-                player1Bat.stop();
-            }
-        }, KeyCode.S);
-
-        getInput().addAction(new UserAction("Up2") {
-            @Override
-            protected void onAction() {
-                player2Bat.up();
-            }
-
-            @Override
-            protected void onActionEnd() {
-                player2Bat.stop();
-            }
-        }, KeyCode.I);
-
-        getInput().addAction(new UserAction("Down2") {
-            @Override
-            protected void onAction() {
-                player2Bat.down();
-            }
-
-            @Override
-            protected void onActionEnd() {
-                player2Bat.stop();
-            }
-        }, KeyCode.K);
-        */
-
         /**@author
          * E.R.Walker (E.walker5@uni.brighton.ac.uk)
          */
@@ -182,6 +132,14 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 player2Bat.stop();
             }
         }, KeyCode.L);
+
+        getInput().addAction(new UserAction("Fire1") {
+
+        }, KeyCode.W);
+
+        getInput().addAction(new UserAction("Fire2") {
+
+        }, KeyCode.I);
     }
 
     @Override
@@ -219,14 +177,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.BALL, EntityType.WALL) {
             protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB) {
                 if (boxB.getName().equals("BOT")) {
-                    getGameScene().getViewport().shakeTranslational(5);
-                    inc("player2score", +1);
-                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
                     server.broadcast(HIT_WALL_DOWN);
                 } else if (boxB.getName().equals("TOP")) {
-                    getGameScene().getViewport().shakeTranslational(5);
-                    inc("player1score", +1);
-                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
                     server.broadcast(HIT_WALL_UP);
                 } else if (boxB.getName().equals("LEFT")) {
                     server.broadcast(HIT_WALL_LEFT);
@@ -239,11 +191,18 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         /**@author
          * E.R.Walker (E.walker5@uni.brighton.ac.uk)
          */
-
-
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
             @Override
             protected void onCollisionBegin(Entity a, Entity bat) {
+                if(bat.equals(EntityType.PLAYER_BAT)){
+                    getGameScene().getViewport().shakeTranslational(5);
+                    inc("player2score", +1);
+                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
+                } else {
+                    getGameScene().getViewport().shakeTranslational(5);
+                    inc("player1score", +1);
+                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
+                }
                 playHitAnimation(bat);
 
                 server.broadcast(bat == player1 ? BALL_HIT_BAT1 : BALL_HIT_BAT2);
