@@ -66,7 +66,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     @Override
     protected void initSettings(GameSettings settings) {
-        settings.setTitle("Pong");
+        settings.setTitle("Tank Battle");
         settings.setVersion("1.0");
         settings.setFontUI("pong.ttf");
         settings.setApplicationMode(ApplicationMode.DEBUG);
@@ -82,7 +82,9 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     @Override
     protected void initInput() {
-        /**@author
+        /**Player controls including LR movement and firing.
+         *
+         * @author
          * E.R.Walker (E.walker5@uni.brighton.ac.uk)
          */
         getInput().addAction(new UserAction("Left1"){
@@ -134,18 +136,36 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         }, KeyCode.L);
 
         getInput().addAction(new UserAction("Fire1") {
-
+            @Override
+            protected void onAction(){
+                ball = spawn("ball",
+                        player1Bat.physics.getEntity().getX(),
+                        (player1Bat.physics.getEntity().getY() - 20));
+            }
         }, KeyCode.W);
 
         getInput().addAction(new UserAction("Fire2") {
+            @Override
+            protected void onAction(){
+                ball = spawn("ball",
+                        player2Bat.physics.getEntity().getX(),
+                        (player2Bat.physics.getEntity().getY() + 40));
 
+            }
         }, KeyCode.I);
     }
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
-        vars.put("player1score", 0);
-        vars.put("player2score", 0);
+        vars.put("player1score",    0);
+        vars.put("player2score",    0);
+        /**Declaring and initializing player and enemy health variables.
+         *
+         * @author
+         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+         */
+//        vars.put("player1health",   3);
+//        vars.put("player2health",   3);
     }
 
     @Override
@@ -197,15 +217,16 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 if(bat == player1){
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
-                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
+//                    inc("player1health", -1);
                 } else if(bat == player2) {
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
-                    server.broadcast("SCORES," + geti("player1score") + "," + geti("player2score"));
+//                    inc("player2health",-1);
                 }
                 playHitAnimation(bat);
-
                 server.broadcast(bat == player1 ? BALL_HIT_BAT1 : BALL_HIT_BAT2);
+                server.broadcast("SCORES," + geti("player1score") + ", " + geti("player2score"));
+//                server.broadcast("HEALTH," + geti("player1health") + ", " + geti("player2health"));
             }
         };
 
@@ -220,6 +241,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         controller.getLabelScorePlayer().textProperty().bind(getip("player1score").asString());
         controller.getLabelScoreEnemy().textProperty().bind(getip("player2score").asString());
+//        controller.getLabelHealthPlayer().textProperty().bind(getip("player1health").asString());
+//        controller.getLabelHealthEnemy().textProperty().bind(getip("player2health").asString());
 
         getGameScene().addUI(ui);
     }
@@ -243,7 +266,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     }
 
     private void initGameObjects() {
-        ball = spawn("ball", getAppWidth() / 2 - 5, getAppHeight() / 2 - 5);
         player1 = spawn("bat", new SpawnData(getAppWidth() / 2, getAppHeight() - 30).put("isPlayer", true));
         player2 = spawn("bat", new SpawnData(getAppWidth() / 2, 30).put("isPlayer", false));
 
