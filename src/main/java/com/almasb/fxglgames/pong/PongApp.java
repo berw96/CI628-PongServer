@@ -74,7 +74,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     private Entity player1;
     private Entity player2;
-    private Entity ball;
+    private Entity ball1;
+    private Entity ball2;
     private BatComponent player1Bat;
     private BatComponent player2Bat;
 
@@ -137,20 +138,23 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         getInput().addAction(new UserAction("Fire1") {
             @Override
-            protected void onAction(){
-                ball = spawn("ball",
+            protected void onActionBegin(){
+                ball1 = spawn("ball",
                         player1Bat.physics.getEntity().getX(),
                         (player1Bat.physics.getEntity().getY() - 20));
+
+                ball1.getComponent(BallComponent.class).initVelocity(-100.0);
             }
         }, KeyCode.W);
 
         getInput().addAction(new UserAction("Fire2") {
             @Override
-            protected void onAction(){
-                ball = spawn("ball",
+            protected void onActionBegin(){
+                ball2 = spawn("ball",
                         player2Bat.physics.getEntity().getX(),
                         (player2Bat.physics.getEntity().getY() + 40));
 
+                ball2.getComponent(BallComponent.class).initVelocity(100.0);
             }
         }, KeyCode.I);
     }
@@ -196,6 +200,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.BALL, EntityType.WALL) {
             protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB) {
+                ball1.removeFromWorld();
                 if (boxB.getName().equals("BOT")) {
                     server.broadcast(HIT_WALL_DOWN);
                 } else if (boxB.getName().equals("TOP")) {
@@ -250,7 +255,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     @Override
     protected void onUpdate(double tpf) {
         if (!server.getConnections().isEmpty()) {
-            var message = "GAME_DATA," + player1.getY() + "," + player2.getY() + "," + ball.getX() + "," + ball.getY();
+            var message = "GAME_DATA," + player1.getY() + "," + player2.getY() + "," + ball1.getX() + "," + ball1.getY();
 
             server.broadcast(message);
         }

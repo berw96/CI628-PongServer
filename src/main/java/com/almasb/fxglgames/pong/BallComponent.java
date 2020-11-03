@@ -69,4 +69,14 @@ public class BallComponent extends Component {
             ));
         }
     }
+
+    /**
+     * Function for setting the init vertical velocity of a BallComponent instance.
+     *
+     * @author
+     * E.R. Walker
+     * */
+    public void initVelocity(double init){
+        physics.setVelocityY(init);
+    }
 }
