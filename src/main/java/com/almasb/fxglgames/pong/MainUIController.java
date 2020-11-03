@@ -44,16 +44,6 @@ public class MainUIController implements UIController {
     @FXML
     private Label labelScoreEnemy;
 
-    /**Labels for player and enemy health.
-     *
-     * @author
-     * E.R.Walker (E.walker5@uni.brighton.ac.uk)
-     */
-//    @FXML
-//    private Label labelHealthPlayer;
-//
-//    @FXML
-//    private Label labelHealthEnemy;
 
     public Label getLabelScoreEnemy() {
         return labelScoreEnemy;
@@ -63,31 +53,10 @@ public class MainUIController implements UIController {
         return labelScorePlayer;
     }
 
-    /**Getters for player and enemy health labels.
-     *
-     * @author
-     * E.R.Walker (E.walker5@uni.brighton.ac.uk)
-     */
-//    public Label getLabelHealthPlayer(){
-//        return labelHealthPlayer;
-//    }
-//
-//    public Label getLabelHealthEnemy(){
-//        return labelHealthEnemy;
-//    }
-
     @Override
     public void init() {
         labelScorePlayer.setFont(FXGL.getUIFactory().newFont(72));
         labelScoreEnemy.setFont(FXGL.getUIFactory().newFont(72));
-
-        /**Setting the font for the player and enemy health labels.
-         *
-         * @author
-         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
-         */
-//        labelHealthPlayer.setFont(FXGL.getUIFactory().newFont(36));
-//        labelHealthEnemy.setFont(FXGL.getUIFactory().newFont(36));
 
         labelScoreEnemy.layoutBoundsProperty().addListener((observable, oldValue, newBounds) -> {
             double width = newBounds.getWidth();
@@ -101,19 +70,6 @@ public class MainUIController implements UIController {
         labelScoreEnemy.textProperty().addListener((observable, oldValue, newValue) -> {
             animateLabel(labelScoreEnemy);
         });
-
-        /**Animating the health labels.
-         *
-         * @author
-         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
-         */
-//        labelHealthPlayer.textProperty().addListener((observable, oldValue, newValue) ->{
-//            animateLabel(labelHealthPlayer);
-//        });
-//
-//        labelHealthEnemy.textProperty().addListener((observable, oldValue, newValue) ->{
-//            animateLabel(labelHealthEnemy);
-//        });
     }
 
     private void animateLabel(Label label) {

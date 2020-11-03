@@ -56,21 +56,14 @@ public class PongFactory implements EntityFactory {
         PhysicsComponent physics = new PhysicsComponent();
         physics.setBodyType(BodyType.DYNAMIC);
         physics.setFixtureDef(new FixtureDef().density(0.3f).restitution(1.0f));
-        //physics.setOnPhysicsInitialized(() -> physics.setLinearVelocity(5 * 60, -5 * 60));
 
-        var endGame = getip("player1score").isEqualTo(10).or(getip("player2score").isEqualTo(10));
+        var endGame = getip("player1score").isEqualTo(5).or(getip("player2score").isEqualTo(5));
 
         ParticleEmitter emitter = ParticleEmitters.newFireEmitter();
         emitter.startColorProperty().bind(
                 Bindings.when(endGame)
                         .then(Color.LIGHTYELLOW)
                         .otherwise(Color.LIGHTYELLOW)
-        );
-
-        emitter.endColorProperty().bind(
-                Bindings.when(endGame)
-                        .then(Color.RED)
-                        .otherwise(Color.LIGHTBLUE)
         );
 
         emitter.setBlendMode(BlendMode.SRC_OVER);

@@ -68,7 +68,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     protected void initSettings(GameSettings settings) {
         settings.setTitle("Tank Battle");
         settings.setVersion("1.0");
-        settings.setFontUI("pong.ttf");
+        settings.setFontUI("UniversCondensed.ttf");
         settings.setApplicationMode(ApplicationMode.DEBUG);
     }
 
@@ -163,13 +163,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("player1score",    0);
         vars.put("player2score",    0);
-        /**Declaring and initializing player and enemy health variables.
-         *
-         * @author
-         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
-         */
-//        vars.put("player1health",   3);
-//        vars.put("player2health",   3);
     }
 
     @Override
@@ -200,7 +193,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.BALL, EntityType.WALL) {
             protected void onHitBoxTrigger(Entity a, Entity b, HitBox boxA, HitBox boxB) {
-                ball1.removeFromWorld();
                 if (boxB.getName().equals("BOT")) {
                     server.broadcast(HIT_WALL_DOWN);
                 } else if (boxB.getName().equals("TOP")) {
@@ -219,19 +211,20 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
             @Override
             protected void onCollisionBegin(Entity ball, Entity bat) {
-                if(bat == player1){
+                if( bat == player1 &&
+                    ball2 != null){
+                    ball2.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
-//                    inc("player1health", -1);
-                } else if(bat == player2) {
+                } else if(  bat == player2 &&
+                            ball1 != null) {
+                    ball1.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
-//                    inc("player2health",-1);
                 }
                 playHitAnimation(bat);
                 server.broadcast(bat == player1 ? BALL_HIT_BAT1 : BALL_HIT_BAT2);
                 server.broadcast("SCORES," + geti("player1score") + ", " + geti("player2score"));
-//                server.broadcast("HEALTH," + geti("player1health") + ", " + geti("player2health"));
             }
         };
 
@@ -246,8 +239,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         controller.getLabelScorePlayer().textProperty().bind(getip("player1score").asString());
         controller.getLabelScoreEnemy().textProperty().bind(getip("player2score").asString());
-//        controller.getLabelHealthPlayer().textProperty().bind(getip("player1health").asString());
-//        controller.getLabelHealthEnemy().textProperty().bind(getip("player2health").asString());
 
         getGameScene().addUI(ui);
     }

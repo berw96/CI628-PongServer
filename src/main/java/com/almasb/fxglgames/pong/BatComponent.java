@@ -39,7 +39,10 @@ public class BatComponent extends Component {
 
     protected PhysicsComponent physics;
 
-    /**@author
+    /**
+     * Player bat movement.
+     *
+     * @author
      * E.R.Walker (E.walker5@uni.brighton.ac.uk)
      */
     public void left(){
