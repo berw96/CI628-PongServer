@@ -53,8 +53,6 @@ import java.util.concurrent.BlockingQueue;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxglgames.pong.NetworkMessages.*;
-import static com.almasb.fxglgames.pong.NetworkMessages.BALL_HIT_BAT1;
-import static com.almasb.fxglgames.pong.NetworkMessages.BALL_HIT_BAT2;
 
 /**
  * A simple clone of Pong.
@@ -74,8 +72,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     private Entity player1;
     private Entity player2;
-    private Entity ball1;
-    private Entity ball2;
     private BatComponent player1Bat;
     private BatComponent player2Bat;
 
@@ -88,6 +84,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
          * @author
          * E.R.Walker (E.walker5@uni.brighton.ac.uk)
          */
+
         getInput().addAction(new UserAction("Left1"){
             @Override
             protected void onAction(){
@@ -139,22 +136,14 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getInput().addAction(new UserAction("Fire1") {
             @Override
             protected void onActionBegin(){
-                ball1 = spawn("ball",
-                        player1Bat.physics.getEntity().getX(),
-                        (player1Bat.physics.getEntity().getY() - 20));
-
-                ball1.getComponent(BallComponent.class).initVelocity(-100.0);
+                player1Bat.fire();
             }
         }, KeyCode.W);
 
         getInput().addAction(new UserAction("Fire2") {
             @Override
             protected void onActionBegin(){
-                ball2 = spawn("ball",
-                        player2Bat.physics.getEntity().getX(),
-                        (player2Bat.physics.getEntity().getY() + 40));
-
-                ball2.getComponent(BallComponent.class).initVelocity(100.0);
+                player2Bat.fire();
             }
         }, KeyCode.I);
     }
@@ -212,15 +201,17 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             @Override
             protected void onCollisionBegin(Entity ball, Entity bat) {
                 if( bat == player1 &&
-                    ball2 != null){
-                    ball2.removeFromWorld();
+                    ball != null){
+                    ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
+                    player2Bat.reload();
                 } else if(  bat == player2 &&
-                            ball1 != null) {
-                    ball1.removeFromWorld();
+                            ball != null) {
+                    ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
+                    player1Bat.reload();
                 }
                 playHitAnimation(bat);
                 server.broadcast(bat == player1 ? BALL_HIT_BAT1 : BALL_HIT_BAT2);
@@ -246,7 +237,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     @Override
     protected void onUpdate(double tpf) {
         if (!server.getConnections().isEmpty()) {
-            var message = "GAME_DATA," + player1.getY() + "," + player2.getY() + "," + ball1.getX() + "," + ball1.getY();
+            var message = "GAME_DATA," + player1.getY() + "," + player2.getY();
 
             server.broadcast(message);
         }
@@ -267,6 +258,12 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         player1Bat = player1.getComponent(BatComponent.class);
         player2Bat = player2.getComponent(BatComponent.class);
+        player1Bat.initFiringOffsetY(-20);
+        player2Bat.initFiringOffsetY(40);
+        player1Bat.initFiringVelocityY(-100);
+        player2Bat.initFiringVelocityY(100);
+        player1Bat.reload();
+        player2Bat.reload();
     }
 
     private void playHitAnimation(Entity bat) {

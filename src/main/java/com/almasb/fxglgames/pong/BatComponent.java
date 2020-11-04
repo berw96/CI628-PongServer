@@ -27,8 +27,11 @@
 package com.almasb.fxglgames.pong;
 
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.physics.PhysicsComponent;
+
+import static com.almasb.fxgl.dsl.FXGL.spawn;
 
 /**
  * @author Almas Baimagambetov (AlmasB) (almaslvl@gmail.com)
@@ -38,9 +41,12 @@ public class BatComponent extends Component {
     private static final double BAT_SPEED = 420;
 
     protected PhysicsComponent physics;
+    protected Entity ball;
+    protected int firingOffsetY;
+    protected double firingVelocityY;
 
     /**
-     * Player bat movement.
+     * Player bat.
      *
      * @author
      * E.R.Walker (E.walker5@uni.brighton.ac.uk)
@@ -61,5 +67,26 @@ public class BatComponent extends Component {
 
     public void stop() {
         physics.setLinearVelocity(0, 0);
+    }
+
+    public void reload(){
+        ball = null;
+    }
+
+    public void fire(){
+        if(ball == null){
+            ball = spawn("ball",
+                    this.physics.getEntity().getX(),
+                    (this.physics.getEntity().getY() + firingOffsetY));
+            ball.getComponent(BallComponent.class).initVelocity(firingVelocityY);
+        }
+    }
+
+    public void initFiringOffsetY(int offsetY){
+        firingOffsetY = offsetY;
+    }
+
+    public void initFiringVelocityY(double velocityY){
+        firingVelocityY = velocityY;
     }
 }
