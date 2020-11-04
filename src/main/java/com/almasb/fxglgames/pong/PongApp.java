@@ -200,14 +200,14 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
             @Override
             protected void onCollisionBegin(Entity ball, Entity bat) {
-                if( bat == player1 &&
-                    ball != null){
+                if( bat == player1  &&
+                    ball == player2Bat.ball){
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
                     player2Bat.reload();
-                } else if(  bat == player2 &&
-                            ball != null) {
+                } else if(  bat == player2  &&
+                            ball == player1Bat.ball) {
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
@@ -260,8 +260,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         player2Bat = player2.getComponent(BatComponent.class);
         player1Bat.initFiringOffsetY(-20);
         player2Bat.initFiringOffsetY(40);
-        player1Bat.initFiringVelocityY(-100);
-        player2Bat.initFiringVelocityY(100);
+        player1Bat.initFiringVelocityY(-200);
+        player2Bat.initFiringVelocityY(200);
         player1Bat.reload();
         player2Bat.reload();
     }
