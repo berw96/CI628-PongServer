@@ -161,9 +161,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         server = getNetService().newTCPServer(55555, new ServerConfig<>(String.class));
 
-        server.setOnConnected(connection -> {
-            connection.addMessageHandlerFX(this);
-        });
+        // Detects when a client connects to the server.
+        server.setOnConnected(connection -> { connection.addMessageHandlerFX(this); });
 
         getGameWorld().addEntityFactory(new PongFactory());
         getGameScene().setBackgroundColor(Color.rgb(100, 100, 100));
@@ -286,7 +285,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     @Override
     public void onReceive(Connection<String> connection, String message) {
         var tokens = message.split(",");
-
         Arrays.stream(tokens).skip(1).forEach(key -> {
             if (key.endsWith("_DOWN")) {
                 getInput().mockKeyPress(KeyCode.valueOf(key.substring(0, 1)));
