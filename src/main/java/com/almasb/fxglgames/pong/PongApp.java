@@ -202,12 +202,14 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             protected void onCollisionBegin(Entity ball, Entity bat) {
                 if( bat == player1  &&
                     ball == player2Bat.ball){
+                    server.broadcast("+1 POINT TO PLAYER 2");
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
                     player2Bat.reload();
                 } else if(  bat == player2  &&
                             ball == player1Bat.ball) {
+                    server.broadcast("+1 POINT TO PLAYER 1");
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
@@ -215,7 +217,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 }
                 playHitAnimation(bat);
                 server.broadcast(bat == player1 ? BALL_HIT_BAT1 : BALL_HIT_BAT2);
-                server.broadcast("SCORES," + geti("player1score") + ", " + geti("player2score"));
             }
         };
 
@@ -234,10 +235,14 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getGameScene().addUI(ui);
     }
 
+    //Sends server data to the client(s) via a message.
     @Override
     protected void onUpdate(double tpf) {
         if (!server.getConnections().isEmpty()) {
-            var message = "GAME_DATA," + player1.getY() + "," + player2.getY();
+            var message = "GAME_DATA,"
+                    + player1.getX()
+                    + ","
+                    + player2.getX();
 
             server.broadcast(message);
         }
@@ -277,6 +282,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 .buildAndPlay();
     }
 
+    //Processes input from the client(s) and maps it to input here on the server.
     @Override
     public void onReceive(Connection<String> connection, String message) {
         var tokens = message.split(",");
