@@ -42,10 +42,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -72,8 +69,10 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     private Entity player1;
     private Entity player2;
+    private Map<Connection<String>, Entity> players;
     private BatComponent player1Bat;
     private BatComponent player2Bat;
+    private int playerConnectionNumber;
 
     private Server<String> server;
 
@@ -84,68 +83,57 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
          * @author
          * E.R.Walker (E.walker5@uni.brighton.ac.uk)
          */
-
-        getInput().addAction(new UserAction("Left1"){
+        getInput().addAction(new UserAction("Left"){
             @Override
             protected void onAction(){
-                player1Bat.left();
+                if(playerConnectionNumber == 1){
+                    player1Bat.left();
+                } else if (playerConnectionNumber == 2){
+                    player2Bat.left();
+                }
             }
 
             @Override
             protected void onActionEnd(){
-                player1Bat.stop();
+                if(playerConnectionNumber == 1){
+                    player1Bat.stop();
+                } else if (playerConnectionNumber == 2){
+                    player2Bat.stop();
+                }
             }
         }, KeyCode.A);
 
-        getInput().addAction(new UserAction("Right1"){
+        getInput().addAction(new UserAction("Right"){
             @Override
             protected void onAction(){
-                player1Bat.right();
+                if(playerConnectionNumber == 1){
+                    player1Bat.right();
+                } else if (playerConnectionNumber == 2){
+                    player2Bat.right();
+                }
             }
 
             @Override
             protected void onActionEnd(){
-                player1Bat.stop();
+                if(playerConnectionNumber == 1){
+                    player1Bat.stop();
+                } else if (playerConnectionNumber == 2){
+                    player2Bat.stop();
+                }
             }
         }, KeyCode.D);
 
-        getInput().addAction(new UserAction("Left2"){
-            @Override
-            protected void onAction(){
-                player2Bat.left();
-            }
 
-            @Override
-            protected void onActionEnd(){
-                player2Bat.stop();
-            }
-        }, KeyCode.J);
-
-        getInput().addAction(new UserAction("Right2"){
-            @Override
-            protected void onAction(){
-                player2Bat.right();
-            }
-
-            @Override
-            protected void onActionEnd(){
-                player2Bat.stop();
-            }
-        }, KeyCode.L);
-
-        getInput().addAction(new UserAction("Fire1") {
+        getInput().addAction(new UserAction("Fire") {
             @Override
             protected void onActionBegin(){
-                player1Bat.fire();
+                if(playerConnectionNumber == 1){
+                    player1Bat.fire();
+                } else if (playerConnectionNumber == 2){
+                    player2Bat.fire();
+                }
             }
         }, KeyCode.W);
-
-        getInput().addAction(new UserAction("Fire2") {
-            @Override
-            protected void onActionBegin(){
-                player2Bat.fire();
-            }
-        }, KeyCode.I);
     }
 
     @Override
@@ -201,14 +189,14 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             protected void onCollisionBegin(Entity ball, Entity bat) {
                 if( bat == player1  &&
                     ball == player2Bat.ball){
-                    server.broadcast("+1 POINT TO PLAYER 2");
+                    server.broadcast("+1 POINT to Player " + server.getConnections().get(1).getConnectionNum());
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
                     player2Bat.reload();
                 } else if(  bat == player2  &&
                             ball == player1Bat.ball) {
-                    server.broadcast("+1 POINT TO PLAYER 1");
+                    server.broadcast("+1 POINT to Player " + server.getConnections().get(0).getConnectionNum());
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
@@ -286,6 +274,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     public void onReceive(Connection<String> connection, String message) {
         var tokens = message.split(",");
         Arrays.stream(tokens).skip(1).forEach(key -> {
+            server.broadcast("Input from Player " + connection.getConnectionNum());
+            playerConnectionNumber = connection.getConnectionNum();
             if (key.endsWith("_DOWN")) {
                 getInput().mockKeyPress(KeyCode.valueOf(key.substring(0, 1)));
             } else if (key.endsWith("_UP")) {

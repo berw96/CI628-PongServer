@@ -42,9 +42,6 @@ import com.almasb.fxgl.physics.box2d.dynamics.FixtureDef;
 import javafx.beans.binding.Bindings;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-
-import java.awt.*;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -91,7 +88,7 @@ public class PongFactory implements EntityFactory {
 
         return entityBuilder(data)
                 .type(isPlayer ? EntityType.PLAYER_BAT : EntityType.ENEMY_BAT)
-                .viewWithBBox(texture("playerSprite.jpg", 50, 50))
+                .viewWithBBox(texture("tank.png", 100, 100))
                 .with(new CollidableComponent(true))
                 .with(physics)
                 .with(new BatComponent())
