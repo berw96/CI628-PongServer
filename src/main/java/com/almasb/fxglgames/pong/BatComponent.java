@@ -38,11 +38,12 @@ import static com.almasb.fxgl.dsl.FXGL.spawn;
  */
 public class BatComponent extends Component {
 
-    private static final double BAT_SPEED = 420;
+    private static final double BAT_SPEED = 210;
 
     protected PhysicsComponent physics;
     protected Entity ball;
     protected int firingOffsetY;
+    protected int firingOffsetX;
     protected double firingVelocityY;
 
     /**
@@ -76,7 +77,7 @@ public class BatComponent extends Component {
     public void fire(){
         if(ball == null){
             ball = spawn("ball",
-                    this.physics.getEntity().getX(),
+                    (this.physics.getEntity().getX() + firingOffsetX),
                     (this.physics.getEntity().getY() + firingOffsetY));
             ball.getComponent(BallComponent.class).initVelocity(firingVelocityY);
         }
@@ -85,6 +86,11 @@ public class BatComponent extends Component {
     public void initFiringOffsetY(int offsetY){
         firingOffsetY = offsetY;
     }
+
+    public void initFiringOffsetX(int offsetX){
+        firingOffsetX = offsetX;
+    }
+
 
     public void initFiringVelocityY(double velocityY){
         firingVelocityY = velocityY;

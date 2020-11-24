@@ -42,7 +42,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -69,7 +72,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     private Entity player1;
     private Entity player2;
-    private Map<Connection<String>, Entity> players;
     private BatComponent player1Bat;
     private BatComponent player2Bat;
     private int playerConnectionNumber;
@@ -229,7 +231,31 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             var message = "GAME_DATA,"
                     + player1.getX()
                     + ","
-                    + player2.getX();
+                    + player2.getX()
+                    + ","
+                    + getip("player1score").get()
+                    + ","
+                    + getip("player2score").get();
+
+            /**Concatenates the message for the balls only
+             * once they've been spawned (not null).
+             *
+             * @author
+             * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+             */
+            if(player1Bat.ball != null){
+                message += ","
+                        + player1Bat.ball.getX()
+                        + ","
+                        + player1Bat.ball.getY();
+            }
+
+            if(player2Bat.ball != null){
+                message += ","
+                        + player2Bat.ball.getX()
+                        + ","
+                        + player2Bat.ball.getY();
+            }
 
             server.broadcast(message);
         }
@@ -250,10 +276,12 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         player1Bat = player1.getComponent(BatComponent.class);
         player2Bat = player2.getComponent(BatComponent.class);
-        player1Bat.initFiringOffsetY(-20);
-        player2Bat.initFiringOffsetY(40);
-        player1Bat.initFiringVelocityY(-200);
-        player2Bat.initFiringVelocityY(200);
+        player1Bat.initFiringOffsetX((int)player1.getBoundingBoxComponent().getWidth()/2);
+        player2Bat.initFiringOffsetX((int)player2.getBoundingBoxComponent().getWidth()/2);
+        player1Bat.initFiringOffsetY(-(int)player1.getBoundingBoxComponent().getHeight());
+        player2Bat.initFiringOffsetY((int)player2.getBoundingBoxComponent().getHeight() + 10);
+        player1Bat.initFiringVelocityY(-1000);
+        player2Bat.initFiringVelocityY(1000);
         player1Bat.reload();
         player2Bat.reload();
     }
@@ -276,6 +304,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         Arrays.stream(tokens).skip(1).forEach(key -> {
             server.broadcast("Input from Player " + connection.getConnectionNum());
             playerConnectionNumber = connection.getConnectionNum();
+
             if (key.endsWith("_DOWN")) {
                 getInput().mockKeyPress(KeyCode.valueOf(key.substring(0, 1)));
             } else if (key.endsWith("_UP")) {
