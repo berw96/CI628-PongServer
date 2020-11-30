@@ -271,19 +271,23 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     }
 
     private void initGameObjects() {
-        player1 = spawn("bat", new SpawnData(getAppWidth() / 2, getAppHeight() - 30).put("isPlayer", true));
+        player1 = spawn("bat", new SpawnData(getAppWidth() / 2, getAppHeight() - 120).put("isPlayer", true));
         player2 = spawn("bat", new SpawnData(getAppWidth() / 2, 30).put("isPlayer", false));
 
         player1Bat = player1.getComponent(BatComponent.class);
         player2Bat = player2.getComponent(BatComponent.class);
         player1Bat.initFiringOffsetX((int)player1.getBoundingBoxComponent().getWidth()/2);
         player2Bat.initFiringOffsetX((int)player2.getBoundingBoxComponent().getWidth()/2);
-        player1Bat.initFiringOffsetY(-(int)player1.getBoundingBoxComponent().getHeight());
+        player1Bat.initFiringOffsetY(-(int)player1.getBoundingBoxComponent().getHeight() + 80);
         player2Bat.initFiringOffsetY((int)player2.getBoundingBoxComponent().getHeight() + 10);
         player1Bat.initFiringVelocityY(-1000);
         player2Bat.initFiringVelocityY(1000);
         player1Bat.reload();
         player2Bat.reload();
+
+        //alternative to rotating the bounding box 180 degrees
+        player1.getBoundingBoxComponent().transform.setScaleX(-1);
+        player1.getBoundingBoxComponent().transform.setScaleY(-1);
     }
 
     private void playHitAnimation(Entity bat) {
