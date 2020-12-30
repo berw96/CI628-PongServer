@@ -276,8 +276,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         player1Bat = player1.getComponent(BatComponent.class);
         player2Bat = player2.getComponent(BatComponent.class);
-        player1Bat.initFiringOffsetX((int)player1.getBoundingBoxComponent().getWidth()/2);
-        player2Bat.initFiringOffsetX((int)player2.getBoundingBoxComponent().getWidth()/2);
+        player1Bat.initFiringOffsetX((int)player1.getBoundingBoxComponent().getWidth()/2 - 7);
+        player2Bat.initFiringOffsetX((int)player2.getBoundingBoxComponent().getWidth()/2 - 7);
         player1Bat.initFiringOffsetY(-(int)player1.getBoundingBoxComponent().getHeight() + 80);
         player2Bat.initFiringOffsetY((int)player2.getBoundingBoxComponent().getHeight() + 10);
         player1Bat.initFiringVelocityY(-1000);

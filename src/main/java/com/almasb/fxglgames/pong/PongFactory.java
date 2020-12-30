@@ -58,23 +58,11 @@ public class PongFactory implements EntityFactory {
 
         var endGame = getip("player1score").isEqualTo(5).or(getip("player2score").isEqualTo(5));
 
-        ParticleEmitter emitter = ParticleEmitters.newFireEmitter();
-        emitter.startColorProperty().bind(
-                Bindings.when(endGame)
-                        .then(Color.LIGHTYELLOW)
-                        .otherwise(Color.LIGHTYELLOW)
-        );
-
-        emitter.setBlendMode(BlendMode.SRC_OVER);
-        emitter.setSize(2, 5);
-        emitter.setEmissionRate(2);
-
         return entityBuilder(data)
                 .type(EntityType.BALL)
-                .bbox(new HitBox(BoundingShape.circle(5)))
+                .viewWithBBox(texture("bullet.png", 15, 15))
                 .with(physics)
                 .with(new CollidableComponent(true))
-                .with(new ParticleComponent(emitter))
                 .with(new BallComponent())
                 .build();
     }
