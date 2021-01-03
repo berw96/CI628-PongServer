@@ -75,6 +75,9 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     private BatComponent player1Bat;
     private BatComponent player2Bat;
     private int playerConnectionNumber;
+    int playerBallFlag = 0;
+    int enemyBallFlag = 0;
+
 
     private Server<String> server;
 
@@ -235,26 +238,38 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                     + ","
                     + getip("player1score").get()
                     + ","
-                    + getip("player2score").get();
+                    + getip("player2score").get()
+                    + ","
+                    + playerBallFlag
+                    + ","
+                    + enemyBallFlag;
 
             /**Concatenates the message for the balls only
-             * once they've been spawned (not null).
+             * once they've been spawned (not null). This
+             * avoids a NullReferenceException being thrown
+             * by the JRE during client runtime.
              *
              * @author
              * E.R.Walker (E.walker5@uni.brighton.ac.uk)
              */
             if(player1Bat.ball != null){
+                playerBallFlag = 1;
                 message += ","
                         + player1Bat.ball.getX()
                         + ","
                         + player1Bat.ball.getY();
+            } else {
+                playerBallFlag = 0;
             }
 
             if(player2Bat.ball != null){
+                enemyBallFlag = 1;
                 message += ","
                         + player2Bat.ball.getX()
                         + ","
                         + player2Bat.ball.getY();
+            } else {
+                enemyBallFlag = 0;
             }
 
             server.broadcast(message);
@@ -306,6 +321,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     public void onReceive(Connection<String> connection, String message) {
         var tokens = message.split(",");
         Arrays.stream(tokens).skip(1).forEach(key -> {
+            //Detects input from a client based on their connection number.
             server.broadcast("Input from Player " + connection.getConnectionNum());
             playerConnectionNumber = connection.getConnectionNum();
 
