@@ -56,8 +56,6 @@ public class PongFactory implements EntityFactory {
         physics.setBodyType(BodyType.DYNAMIC);
         physics.setFixtureDef(new FixtureDef().density(0.3f).restitution(1.0f));
 
-        var endGame = getip("player1score").isEqualTo(5).or(getip("player2score").isEqualTo(5));
-
         return entityBuilder(data)
                 .type(EntityType.BALL)
                 .viewWithBBox(texture("bullet.png", 15, 15))

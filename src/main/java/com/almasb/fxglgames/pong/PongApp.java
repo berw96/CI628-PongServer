@@ -149,13 +149,19 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     @Override
     protected void initGame() {
+        // creates a writer and reader for the server to use when communicating with clients.
         Writers.INSTANCE.addTCPWriter(String.class, outputStream -> new MessageWriterS(outputStream));
         Readers.INSTANCE.addTCPReader(String.class, in -> new MessageReaderS(in));
 
+        // initializes the server.
         server = getNetService().newTCPServer(55555, new ServerConfig<>(String.class));
 
         // Detects when a client connects to the server.
-        server.setOnConnected(connection -> { connection.addMessageHandlerFX(this); });
+        server.setOnConnected(connection -> {
+            connection.addMessageHandlerFX(this);
+            server.broadcast("Player " + connection.getConnectionNum() + " has joined the session.");
+            server.broadcast("Number of players connected is now: " + server.getConnections().size());
+        });
 
         getGameWorld().addEntityFactory(new PongFactory());
         getGameScene().setBackgroundColor(Color.rgb(100, 100, 100));
@@ -186,10 +192,15 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             }
         });
 
-        /**@author
-         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
-         */
         CollisionHandler ballBatHandler = new CollisionHandler(EntityType.BALL, EntityType.PLAYER_BAT) {
+            /**Handles ball on bat (bullet on tank) collisions.
+             * When a ball hits the opposing player a point is
+             * rewarded to the player and the ball is removed
+             * from the game world.
+             *
+             * @author
+             * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+             */
             @Override
             protected void onCollisionBegin(Entity ball, Entity bat) {
                 if( bat == player1  &&
@@ -291,6 +302,12 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         player1Bat = player1.getComponent(BatComponent.class);
         player2Bat = player2.getComponent(BatComponent.class);
+        /**Initializes the firing offsets and firing
+         * velocities of the player bats.
+         *
+         * @author
+         * E.R.Walker (E.walker5@uni.brighton.ac.uk)
+         */
         player1Bat.initFiringOffsetX((int)player1.getBoundingBoxComponent().getWidth()/2 - 7);
         player2Bat.initFiringOffsetX((int)player2.getBoundingBoxComponent().getWidth()/2 - 7);
         player1Bat.initFiringOffsetY(-(int)player1.getBoundingBoxComponent().getHeight() + 80);
@@ -329,6 +346,12 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 getInput().mockKeyPress(KeyCode.valueOf(key.substring(0, 1)));
             } else if (key.endsWith("_UP")) {
                 getInput().mockKeyRelease(KeyCode.valueOf(key.substring(0, 1)));
+            } else if(key.endsWith("QUIT")){
+                server.broadcast("Player " + connection.getConnectionNum() + " left the session.");
+                // TODO: Stop the server from trying to communicate with a terminated connection
+                // end the connection which provided the input
+                //connection.terminate();
+                server.broadcast("Number of players connected is now: " + server.getConnections().size() + "\n");
             }
         });
     }
