@@ -134,8 +134,10 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             protected void onActionBegin(){
                 if(playerConnectionNumber == 1){
                     player1Bat.fire();
+                    server.broadcast(BAT1_FIRED_BALL);
                 } else if (playerConnectionNumber == 2){
                     player2Bat.fire();
+                    server.broadcast(BAT2_FIRED_BALL);
                 }
             }
         }, KeyCode.W);
@@ -347,7 +349,11 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             } else if (key.endsWith("_UP")) {
                 getInput().mockKeyRelease(KeyCode.valueOf(key.substring(0, 1)));
             } else if(key.endsWith("QUIT")){
-                server.broadcast("Player " + connection.getConnectionNum() + " left the session.");
+                if(playerConnectionNumber == 1){
+                    server.broadcast(PLAYER1_QUIT);
+                } else if (playerConnectionNumber == 2) {
+                    server.broadcast(PLAYER2_QUIT);
+                }
                 // TODO: Stop the server from trying to communicate with a terminated connection
                 // end the connection which provided the input
                 //connection.terminate();

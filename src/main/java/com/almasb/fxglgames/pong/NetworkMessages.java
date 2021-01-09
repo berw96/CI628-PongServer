@@ -13,4 +13,10 @@ public class NetworkMessages {
 
     public static final String BALL_HIT_BAT1 = "BALL_HIT_BAT1";
     public static final String BALL_HIT_BAT2 = "BALL_HIT_BAT2";
+
+    public static final String BAT1_FIRED_BALL = "BAT1_FIRED_BALL";
+    public static final String BAT2_FIRED_BALL = "BAT2_FIRED_BALL";
+
+    public static final String PLAYER1_QUIT  = "PLAYER1_QUIT";
+    public static final String PLAYER2_QUIT  = "PLAYER2_QUIT";
 }
