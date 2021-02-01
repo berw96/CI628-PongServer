@@ -42,10 +42,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -128,7 +125,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             }
         }, KeyCode.D);
 
-
         getInput().addAction(new UserAction("Fire") {
             @Override
             protected void onActionBegin(){
@@ -207,14 +203,12 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             protected void onCollisionBegin(Entity ball, Entity bat) {
                 if( bat == player1  &&
                     ball == player2Bat.ball){
-                    server.broadcast("+1 POINT to Player " + server.getConnections().get(1).getConnectionNum());
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player2score", +1);
                     player2Bat.reload();
                 } else if(  bat == player2  &&
                             ball == player1Bat.ball) {
-                    server.broadcast("+1 POINT to Player " + server.getConnections().get(0).getConnectionNum());
                     ball.removeFromWorld();
                     getGameScene().getViewport().shakeTranslational(5);
                     inc("player1score", +1);
@@ -243,7 +237,10 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     //Sends server data to the client(s) via a message.
     @Override
     protected void onUpdate(double tpf) {
+        System.out.println("Server connections: " + server.getConnections().size());
+
         if (!server.getConnections().isEmpty()) {
+
             var message = "GAME_DATA,"
                     + player1.getX()
                     + ","
@@ -259,7 +256,7 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
             /**Concatenates the message for the balls only
              * once they've been spawned (not null). This
-             * avoids a NullReferenceException being thrown
+             * avoids a NullPointerException being thrown
              * by the JRE during client runtime.
              *
              * @author
@@ -284,7 +281,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
             } else {
                 enemyBallFlag = 0;
             }
-
             server.broadcast(message);
         }
     }
@@ -342,7 +338,11 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         Arrays.stream(tokens).skip(1).forEach(key -> {
             //Detects input from a client based on their connection number.
             server.broadcast("Input from Player " + connection.getConnectionNum());
-            playerConnectionNumber = connection.getConnectionNum();
+
+            // soft fix to adjust playerConnectionNumber
+            if(connection.getConnectionNum() < 3){
+                playerConnectionNumber = connection.getConnectionNum();
+            }
 
             if (key.endsWith("_DOWN")) {
                 getInput().mockKeyPress(KeyCode.valueOf(key.substring(0, 1)));
@@ -354,10 +354,9 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 } else if (playerConnectionNumber == 2) {
                     server.broadcast(PLAYER2_QUIT);
                 }
-                // TODO: Stop the server from trying to communicate with a terminated connection
-                // end the connection which provided the input
-                //connection.terminate();
-                server.broadcast("Number of players connected is now: " + server.getConnections().size() + "\n");
+                System.out.println("Player Connection Number: " + playerConnectionNumber);
+                connection.terminate();
+                System.out.println("Connection Terminated: " + playerConnectionNumber);
             }
         });
     }
@@ -404,7 +403,11 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("Warning: Connection could not be read.");
+                    // TODO: Differentiate between client quit messages, must be defined client-side
+                    // Once length of the buffer is 0, this implies a connection has been terminated.
+                    // The last message they would have send would have been a quit message to trigger the disconnect.
+                    messages.add("QUIT");
                 }
             });
 
@@ -414,7 +417,13 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
         @Override
         public String read() throws Exception {
-            return messages.take();
+            // Assigns the message at the end of the queue to a String variable and compares it to the QUIT command
+            String message = messages.take();
+            if(message.equals("QUIT")){
+                System.out.println("Handling EOFException.");
+                throw new EOFException();
+            }
+            return message;
         }
     }
 
