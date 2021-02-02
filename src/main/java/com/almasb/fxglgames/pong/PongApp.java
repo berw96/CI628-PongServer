@@ -72,9 +72,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     private BatComponent player1Bat;
     private BatComponent player2Bat;
     private int playerConnectionNumber;
-    int playerBallFlag = 0;
-    int enemyBallFlag = 0;
-
+    private int playerBallFlag = 0;
+    private int enemyBallFlag = 0;
 
     private Server<String> server;
 
@@ -350,9 +349,9 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
                 getInput().mockKeyRelease(KeyCode.valueOf(key.substring(0, 1)));
             } else if(key.endsWith("QUIT")){
                 if(playerConnectionNumber == 1){
-                    server.broadcast(PLAYER1_QUIT);
+                    connection.send(PLAYER1_QUIT);
                 } else if (playerConnectionNumber == 2) {
-                    server.broadcast(PLAYER2_QUIT);
+                    connection.send(PLAYER2_QUIT);
                 }
                 System.out.println("Player Connection Number: " + playerConnectionNumber);
                 connection.terminate();
