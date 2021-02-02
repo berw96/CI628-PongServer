@@ -141,8 +141,8 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
-        vars.put("player1score",    0);
-        vars.put("player2score",    0);
+        vars.put("player1score", 0);
+        vars.put("player2score", 0);
     }
 
     @Override
