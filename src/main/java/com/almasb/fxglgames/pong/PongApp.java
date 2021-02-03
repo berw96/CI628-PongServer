@@ -71,7 +71,10 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
     private Entity player2;
     private BatComponent player1Bat;
     private BatComponent player2Bat;
-    private int playerConnectionNumber;
+    private int playerConnectionFlag = 0;
+    private int enemyConnectionFlag = 0;
+    private int playerInputFlag = 0;
+    private int enemyInputFlag = 0;
     private int playerBallFlag = 0;
     private int enemyBallFlag = 0;
 
@@ -87,18 +90,24 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getInput().addAction(new UserAction("Left"){
             @Override
             protected void onAction(){
-                if(playerConnectionNumber == 1){
+                if(playerConnectionFlag == 1 && playerInputFlag == 1){
                     player1Bat.left();
-                } else if (playerConnectionNumber == 2){
+                }
+
+                if (enemyConnectionFlag == 1 && enemyInputFlag == 1){
                     player2Bat.left();
                 }
             }
 
             @Override
             protected void onActionEnd(){
-                if(playerConnectionNumber == 1){
+                if(playerConnectionFlag == 1 && playerInputFlag == 0){
+                    System.out.println("Player 1 told to stop moving left.");
                     player1Bat.stop();
-                } else if (playerConnectionNumber == 2){
+                }
+
+                if (enemyConnectionFlag == 1  && enemyInputFlag == 0){
+                    System.out.println("Player 2 told to stop moving left.");
                     player2Bat.stop();
                 }
             }
@@ -107,18 +116,24 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getInput().addAction(new UserAction("Right"){
             @Override
             protected void onAction(){
-                if(playerConnectionNumber == 1){
+                if(playerConnectionFlag == 1 && playerInputFlag == 1){
                     player1Bat.right();
-                } else if (playerConnectionNumber == 2){
+                }
+
+                if (enemyConnectionFlag == 1  && enemyInputFlag == 1){
                     player2Bat.right();
                 }
             }
 
             @Override
             protected void onActionEnd(){
-                if(playerConnectionNumber == 1){
+                if(playerConnectionFlag == 1 && playerInputFlag == 0){
+                    System.out.println("Player 1 told to stop moving right.");
                     player1Bat.stop();
-                } else if (playerConnectionNumber == 2){
+                }
+
+                if (enemyConnectionFlag == 1  && enemyInputFlag == 0){
+                    System.out.println("Player 2 told to stop moving right.");
                     player2Bat.stop();
                 }
             }
@@ -127,10 +142,12 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         getInput().addAction(new UserAction("Fire") {
             @Override
             protected void onActionBegin(){
-                if(playerConnectionNumber == 1){
+                if(playerConnectionFlag == 1 && playerInputFlag == 1){
                     player1Bat.fire();
                     server.broadcast(BAT1_FIRED_BALL);
-                } else if (playerConnectionNumber == 2){
+                }
+
+                if (enemyConnectionFlag == 1 && enemyInputFlag == 1){
                     player2Bat.fire();
                     server.broadcast(BAT2_FIRED_BALL);
                 }
@@ -156,8 +173,15 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         // Detects when a client connects to the server.
         server.setOnConnected(connection -> {
             connection.addMessageHandlerFX(this);
-            server.broadcast("Player " + connection.getConnectionNum() + " has joined the session.");
             server.broadcast("Number of players connected is now: " + server.getConnections().size());
+
+            if(server.getConnections().size() == 1){
+                playerConnectionFlag = 1;
+                connection.send(PLAYER1_CONNECT);
+            } else if (server.getConnections().size() == 2){
+                enemyConnectionFlag = 1;
+                connection.send(PLAYER2_CONNECT);
+            }
         });
 
         getGameWorld().addEntityFactory(new PongFactory());
@@ -336,26 +360,29 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
         var tokens = message.split(",");
         Arrays.stream(tokens).skip(1).forEach(key -> {
             //Detects input from a client based on their connection number.
-            server.broadcast("Input from Player " + connection.getConnectionNum());
 
-            // soft fix to adjust playerConnectionNumber
-            if(connection.getConnectionNum() < 3){
-                playerConnectionNumber = connection.getConnectionNum();
+            if (key.endsWith("_PLAYERDOWN")) {
+                playerInputFlag = 1;
+                getInput().mockKeyPress(KeyCode.valueOf(key.substring(0, 1)));
+            } else if (key.endsWith("_PLAYERUP")) {
+                playerInputFlag = 0;
+                getInput().mockKeyRelease(KeyCode.valueOf(key.substring(0, 1)));
+            } else if(key.endsWith("PLAYERQUIT")){
+                connection.send(PLAYER1_QUIT);
+                connection.terminate();
+                System.out.println("Player 1 Quit.");
             }
 
-            if (key.endsWith("_DOWN")) {
+            if(key.endsWith("_ENEMYDOWN")){
+                enemyInputFlag = 1;
                 getInput().mockKeyPress(KeyCode.valueOf(key.substring(0, 1)));
-            } else if (key.endsWith("_UP")) {
+            } else if(key.endsWith("_ENEMYUP")){
+                enemyInputFlag = 0;
                 getInput().mockKeyRelease(KeyCode.valueOf(key.substring(0, 1)));
-            } else if(key.endsWith("QUIT")){
-                if(playerConnectionNumber == 1){
-                    connection.send(PLAYER1_QUIT);
-                } else if (playerConnectionNumber == 2) {
-                    connection.send(PLAYER2_QUIT);
-                }
-                System.out.println("Player Connection Number: " + playerConnectionNumber);
+            } else if(key.endsWith("ENEMYQUIT")){
+                connection.send(PLAYER2_QUIT);
                 connection.terminate();
-                System.out.println("Connection Terminated: " + playerConnectionNumber);
+                System.out.println("Player 2 Quit.");
             }
         });
     }

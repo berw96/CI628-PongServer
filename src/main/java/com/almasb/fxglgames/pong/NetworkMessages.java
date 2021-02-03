@@ -24,6 +24,9 @@ public class NetworkMessages {
     public static final String BAT1_FIRED_BALL = "BAT1_FIRED_BALL";
     public static final String BAT2_FIRED_BALL = "BAT2_FIRED_BALL";
 
+    public static final String PLAYER1_CONNECT = "PLAYER1_CONNECT";
+    public static final String PLAYER2_CONNECT = "PLAYER2_CONNECT";
+
     public static final String PLAYER1_QUIT  = "PLAYER1_QUIT";
     public static final String PLAYER2_QUIT  = "PLAYER2_QUIT";
 }
