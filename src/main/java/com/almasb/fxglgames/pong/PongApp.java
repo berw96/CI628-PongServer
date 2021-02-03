@@ -403,7 +403,6 @@ public class PongApp extends GameApplication implements MessageHandler<String> {
 
                 } catch (Exception e) {
                     System.out.println("Warning: Connection could not be read.");
-                    // TODO: Differentiate between client quit messages, must be defined client-side
                     // Once length of the buffer is 0, this implies a connection has been terminated.
                     // The last message they would have send would have been a quit message to trigger the disconnect.
                     messages.add("QUIT");
